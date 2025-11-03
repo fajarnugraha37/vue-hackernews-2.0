@@ -10,6 +10,9 @@ Migrating a mature Vue 2 codebase demands more than bumping versions. This workf
 Tools:
 - https://github.com/vuejs/vue-codemod
 - https://github.com/vuejs/vue-migration-helper
+- https://github.com/mubaidr/vue2-migration-helper
+- https://github.com/ildar-dev/vue2-to-3
+- https://github.com/miltonian/migrate-ai
 
 ---
 
