@@ -20,6 +20,12 @@ Migrating a mature Vue 2 codebase demands more than bumping versions. This workf
 We’re planning to migrate <repo-name> from Vue 2.x to Vue 3.x. 
 Here is our tech stack summary: <list frameworks, build tools, deployment>.
 List the major risks and missing prerequisites we should evaluate before starting.
+---
+Repository: {{ repo_name }}
+Current stack: {{ current_stack_overview }}
+Constraints / deadlines: {{ constraints }}
+
+List key risks, prerequisites, and stakeholder decisions required before beginning the migration.
 ```
 
 ### 2.2 Dependency Inventory
@@ -34,6 +40,11 @@ List the major risks and missing prerequisites we should evaluate before startin
 ```
 Given this list of dependencies (paste package.json excerpt), which ones lack Vue 3 support? 
 Suggest Vue 3 compatible replacements or mitigation plans.
+---
+Dependencies to review:
+{{ package_json_snippet }}
+
+Identify packages lacking Vue 3 support, suggest replacements or mitigations, and flag items needing deeper investigation.
 ```
 
 ### 2.3 Source Audit
@@ -81,6 +92,12 @@ export default {
 ```
 Vue compat warning: <paste warning>. Here’s the code snippet (paste). 
 Refactor it to the Vue 3-idiomatic pattern and explain the trade-offs.
+---
+Compat warning: {{ warning_message }}
+Code snippet:
+{{ code_snippet }}
+
+Explain the cause, show the Vue 3-compliant refactor, and note any follow-up testing.
 ```
 
 ### Phase 2 – Tooling Upgrade
@@ -162,6 +179,13 @@ const api = import.meta.env.VITE_API_URL
 ```
 We are porting this Webpack configuration (paste relevant sections) to Vite. 
 Outline the equivalent Vite config and note any missing feature parity concerns.
+---
+Webpack/Vue CLI config snippets:
+{{ legacy_config_snippet }}
+Current tooling commands: {{ legacy_scripts }}
+Desired Vite features: {{ desired_vite_features }}
+
+Provide equivalent Vite configuration (plugins, css, env), call out features needing custom plugins, and list packages we can remove.
 ```
 
 ### Phase 3 – Runtime Stabilization
@@ -239,6 +263,12 @@ export const useCounterStore = defineStore('counter', {
 ```
 We currently use Vuex 3 modules defined like this (paste). 
 Should we migrate to Vuex 4 or Pinia for Vue 3? Provide a pros/cons analysis with migration effort estimates.
+---
+Current Vuex module snippet:
+{{ vuex_module_code }}
+State usage patterns: {{ state_usage_notes }}
+
+Compare staying on Vuex 4 vs migrating to Pinia (include pros/cons, migration effort, testing impact), then recommend a path.
 ```
 
 ### Phase 5 – Verification & Observability
@@ -250,24 +280,66 @@ Should we migrate to Vuex 4 or Pinia for Vue 3? Provide a pros/cons analysis wit
 ```
 Create a regression test plan focusing on components that changed due to Vue 3 migration. 
 Consider filters removal, router updates, and store refactors.
+---
+List of migrated features:
+{{ migrated_feature_list }}
+Known risk areas: {{ risk_areas }}
+
+Produce a regression checklist covering unit, integration, and E2E tests plus monitoring to validate the migration.
 ```
 
 ---
 
 ## 4. Handling Third-Party Libraries
 
-### 4.1 Vue 2-specific Libraries
+- Build an inventory of every dependency touching Vue, note target versions, and assign owners.
+- Use the matrix below to classify upgrade work and track risk.
+
+### 4.1 Assessment Matrix
+| Library Type | Action | Notes |
+|--------------|--------|-------|
+| Vue 3 ready | Upgrade immediately and follow vendor guide | e.g. vue-router@4, vuex@4 |
+| Vue 2 only but critical | Keep temporarily under compat or wrap in microfrontends/web components | define sunset plan |
+| UI framework (Bulma/Bootstrap) | Evaluate Buefy 3, Oruga, Element Plus, Naive UI, headless + Tailwind | pilot per component cluster |
+| Framework-agnostic (Axios, Lodash) | Usually unaffected; confirm ESM support & DOM usage | lazy-load in `onMounted` for SSR |
+| Abandoned/blocking | Fork, rewrite, or replace before removing compat | log as migration blocker |
+
+**AI prompt (library assessment)**
+```
+We are cataloging third-party libraries for migration.
+Libraries and current versions:
+{{ library_inventory }}
+Target versions / replacements:
+{{ target_versions_or_replacements }}
+Known constraints:
+{{ known_constraints }}
+
+Produce a table with action, risk (🔴/🟡/🟢), suggested replacements, and key test focus areas.
+```
+
+### 4.2 Vue 2-specific Libraries
 - **Check vendor roadmap.** Some provide Vue 3 forks/betas.
 - **Bridging strategies:** 
   - Wrap Vue 2 components inside micro frontends running compat build.
   - Expose critical UI as web components using `@vue/web-component-wrapper`.
   - Replace with agnostic alternatives (e.g., Vue 3 ready UI libraries such as Naive UI, Element Plus).
 
-### 4.2 Non-Vue Libraries
+### 4.3 Non-Vue Libraries
 - Usually unaffected. Verify they don’t inject Vue internals (rare but possible with SSR libs).
 - Re-test integrations relying on DOM structure (Vue 3 changed vnode layouts slightly).
 
-### 4.3 Custom Directives & Mixins
+**AI prompt (non-Vue library check)**
+```
+Evaluate the following non-Vue integration:
+- Library: {{ library_name }} ({{ current_version }})
+- Usage context: {{ usage_description }}
+- Snippet:
+{{ code_snippet }}
+
+List Vue 3 considerations (ESM support, SSR impact, DOM interactions) and mitigation steps.
+```
+
+### 4.4 Custom Directives & Mixins
 - Directives with hooks (`bind`, `inserted`, `unbind`) must adopt new hook names (`beforeMount`, `mounted`, `unmounted`, etc.).
 - Refactor global mixins into composables or provide plugins to avoid polluting global scope.
 
@@ -275,9 +347,15 @@ Consider filters removal, router updates, and store refactors.
 ```
 Refactor this Vue 2 directive (paste) to Vue 3 hook signatures. 
 Highlight differences in binding lifecycle semantics.
+---
+Directive code:
+{{ directive_code }}
+Usage context: {{ directive_usage }}
+
+Convert this Vue 2 directive to Vue 3 hook signatures and explain lifecycle differences plus any behaviour changes.
 ```
 
-### 4.4 Library-Specific Migration Notes
+### 4.5 Library-Specific Migration Notes
 - **vuex-persistedstate ➜ pinia-plugin-persistedstate:** when moving to Pinia, add plugin registration at store creation (`pinia.use(createPersistedState())`) and migrate module namespaces to Pinia stores. Validate storage keys to avoid collisions between partially migrated microfrontends.
 
 ```js
@@ -314,8 +392,8 @@ export default createVuetify({
 })
 ```
 
-- **Buefy (Vue 2)**: official Vue 3 support is limited—evaluate Oruga (Bulma-based) or Element Plus. Plan for component-level replacements; gradually wrap legacy Buefy widgets in compatibility shells until retired.
-- **Oruga (Vue 3)**: a lightweight Bulma-style library. If migrating from Buefy, audit component APIs—Oruga favors headless components; expect to supply custom markup. Introduce Oruga alongside legacy UI by namespacing CSS and progressively swapping components.
+- **Buefy 0.9 ➜ Buefy 3 (Vue 3 support)**: follow the official migration guide (https://github.com/buefy/buefy/blob/dev/MIGRATION-NOTE.md); update renamed props/slots and remove filters. Confirm Bulma variables remain consistent across microfrontends.
+- **Buefy ➜ Oruga (alternative)**: a headless Bulma-flavoured library. If Buefy 3 gaps exist, create wrapper components to standardise markup and gradually replace legacy widgets.
 
 ```vue
 <template>
@@ -399,6 +477,17 @@ const manager = new UserManager({
 })
 ```
 
+**AI prompt (ecosystem package upgrade)**
+```
+Library: {{ library_name }}
+Current version: {{ current_version }}
+Target version: {{ target_version }}
+Usage snippet:
+{{ code_snippet }}
+
+List breaking changes from the vendor docs, code updates we must apply, and tests to prioritize.
+```
+
 - **Tailwind CSS:** upgrade Tailwind config to v3 (JIT default), ensure `content` globs include `.vue`/`.ts` in Vite; share base config via workspace packages when MFEs migrate piecemeal.
 
 ```js
@@ -415,7 +504,7 @@ module.exports = {
 - **SCSS/SASS/LESS:** configure Vite `css.preprocessorOptions` for shared variables/mixins. For MFEs, publish a design tokens package so Vue 2 and Vue 3 apps read identical variables.
 - **Microfrontend Runtime Considerations:** coordinate library upgrades per microfrontend—maintain compatibility wrappers so Vue 2 MFEs can coexist with Vue 3 MFEs using new dependencies. Apply feature flags for shared UI kit versions to prevent CSS drift.
 
-### 4.5 Extra Guidance & Examples
+### 4.6 Extra Guidance & Examples
 - **Decision checklist**
   - Create a migration spreadsheet capturing package name, current version, Vue 3 replacement, owner, risk level, and rollout window.
   - Flag libraries with no Vue 3 roadmap as blockers and raise migration RFCs early.
@@ -423,8 +512,15 @@ module.exports = {
   ```markdown
   | Package | Current | Target | Owner | Risk | Rollout Notes |
   |---------|---------|--------|-------|------|----------------|
-  | buefy   | 0.9.x   | oruga  | @design | 🔴 | Replace nav + forms in sprint 1, tables in sprint 2 |
+  | buefy   | 0.9.x   | buefy 3.0 / oruga fallback | @design | 🔴 | Pilot Buefy 3 for core widgets; fallback to Oruga for gaps |
   | vee-validate | 3.x | 4.x | @forms | 🟡 | Convert login + registration, then global forms |
+  ```
+- **AI prompt (backlog drafting)**
+  ```
+  Build a migration backlog table for these libraries:
+  {{ library_list_with_targets }}
+
+  Include columns for owner, risk (🔴/🟡/🟢), planned rollout window, and regression focus.
   ```
 - **Bridging legacy Vue 2 components**
   - Web component wrapper: `customElements.define('legacy-widget', wrap(Vue, LegacyComponent))`.
@@ -434,6 +530,15 @@ module.exports = {
   - Verify ESM output; Vite prefers native modules.
   - Lazy-load DOM-heavy packages inside `onMounted` to avoid hydration warnings.
   - Re-test SSR behaviour because Vue 3 hydration is stricter.
+
+**AI prompt (bridging strategy)**
+```
+We must run these Vue 2 components inside a Vue 3 shell:
+{{ legacy_component_list }}
+Constraints: {{ constraints_or_deadlines }}
+
+Recommend a bridging strategy (compat build, web components, microfrontends) and outline migration checkpoints.
+```
 
 ---
 
@@ -445,6 +550,14 @@ module.exports = {
   - Namespace CSS.
   - Use bundler externals to avoid duplicate Vue copies; ensure Vue 2 apps load their own version.
   - Consider migration wrappers to communicate via events or shared stores.
+
+**AI prompt (microfrontend inventory)**
+```
+Catalog our microfrontends with the following data:
+{{ microfrontend_list_and_details }}
+
+Produce a table capturing current stack, target stack, owner, shared dependencies, risk, and migration window.
+```
 
 ### 5.2 Migrating Qiankun to Modern Alternatives
 - Evaluate Module Federation (Webpack 5) or Vite-native Module Federation plugins.
@@ -470,11 +583,18 @@ export default defineConfig({
 })
 ```
 
-#### AI prompt (microfrontend plan)
+**AI prompt (microfrontend migration plan)**
 ```
 We have 20 microfrontends managed with Qiankun (Vue 2). 
 We aim to migrate them gradually to Vue 3 using Vite Module Federation. 
 Draft a phased rollout plan that keeps production stable while apps switch stacks.
+---
+Current host: {{ current_microfrontend_host }}
+Remotes: {{ list_of_microfrontends }}
+Target architecture: {{ target_architecture }}
+Constraints: {{ constraints }}
+
+Outline phased steps (audit, shell upgrade, pilots, rollout, decommission) and include risk mitigation plus rollback triggers for each phase.
 ```
 
 ### 5.3 Partial Migration Tips
@@ -488,6 +608,16 @@ Draft a phased rollout plan that keeps production stable while apps switch stack
   - **Web Components**: wrap Vue 2 components using `@vue/web-component-wrapper`, then consume them as custom elements in Vue 3.
   - **iframe/microfrontend isolation**: render Vue 2 apps in isolated microfrontends and communicate via events.
   - **Compat build**: short-term, use Vue 3 compat mode to host Vue 2 components, but plan to migrate or wrap them—compat build is a temporary bridge, not a long-term solution.
+
+**AI prompt (partial migration plan)**
+```
+We have the following microfrontends to migrate incrementally:
+{{ microfrontend_migration_order }}
+State strategy: {{ state_strategy }}
+Design system: {{ design_system_notes }}
+
+Produce a staged plan covering compatibility layers, regression testing, and rollback for each batch.
+```
 
 **Sample: Wrap Vue 2 component as Web Component**
 ```js
@@ -535,6 +665,16 @@ customElements.define('legacy-widget', CustomElement)
   - Automate visual regression per MFE (Percy/Chromatic) to catch design drift.
   - Document rollback steps for each remote deployment.
 
+**AI prompt (microfrontend playbook)**
+```
+Scorecard:
+{{ microfrontend_scorecard }}
+Shared dependencies: {{ shared_dependencies }}
+Risk notes: {{ risk_notes }}
+
+Design a detailed playbook covering coexistence patterns, event bridge setup, singletons configuration, and regression checkpoints.
+```
+
 ---
 
 ## 6. Dealing With Other Legacy Tooling
@@ -542,6 +682,14 @@ customElements.define('legacy-widget', CustomElement)
 ### 6.1 Webpack Remnants
 - Remove Webpack-specific loaders (`vue-loader`, `css-loader`, etc.) once Vite parity is confirmed.
 - Replace `DefinePlugin` usage with Vite’s `define` option or `.env` files.
+
+**AI prompt (webpack cleanup)**
+```
+We are removing Webpack tooling. Current config snippets:
+{{ webpack_config_snippets }}
+
+List equivalent Vite configuration (plugins, env handling, asset pipeline) and packages we can uninstall.
+```
 
 ### 6.2 Vue CLI Specifics
 - Delete CLI config and service files once the build/test pipelines point to Vite commands.
@@ -551,6 +699,15 @@ customElements.define('legacy-widget', CustomElement)
   - **TypeScript support** is built in; ensure `tsconfig` aligns with Vite defaults.
 - Configure CLI-to-Vite migration scripts for styles: map `css.loaderOptions` to Vite globals, rewire Tailwind/PostCSS pipelines, and replicate asset handling rules for fonts/images.
 - For projects with Vue CLI + qiankun, migrate the host to Vite first, then wrap remaining CLI MFEs with build adapters (e.g., `vite-plugin-qiankun`) until each app is ported.
+
+**AI prompt (CLI ➜ Vite plan)**
+```
+vue.config.js excerpt:
+{{ vue_config_snippet }}
+Current scripts: {{ npm_scripts }}
+
+Describe the equivalent Vite configuration (aliases, proxies, CSS preprocessing) and list any plugins or env file changes required.
+```
 
 **Sample: Vue CLI css.loaderOptions ➜ Vite config**
 ```js
@@ -595,16 +752,43 @@ config.global.stubs = {
 - For Module Federation deployments, version remote URLs and bust caches after each release.
 - Add bundle size checks (e.g., `source-map-explorer`, `vite build --analyze`) to monitor regressions.
 
+**AI prompt (CI/CD update)**
+```
+Current pipeline steps:
+{{ current_ci_pipeline }}
+Target state:
+{{ desired_ci_pipeline }}
+
+Recommend updates for build/test/deploy after adopting Vite (include caching, artifacts, federation remote publishing, and rollback steps).
+```
+
 ### 6.5 Infrastructure Checklist
 - Remove obsolete Webpack/CLI configuration files from repositories.
 - Update container images/Dockerfiles to drop Webpack-specific dependencies.
 - Refresh Sentry/New Relic tracing instrumentation to match new router/store structures.
 - Document new local development commands (Vite dev server, Pinia devtools) in CONTRIBUTING.md.
 
+**AI prompt (infrastructure checklist)**
+```
+Infrastructure artefacts:
+- Dockerfiles: {{ dockerfile_notes }}
+- Monitoring/logging: {{ monitoring_requirements }}
+- Developer tooling: {{ developer_tooling_changes }}
+
+Produce a checklist with owners and due dates to align infrastructure with the Vue 3 stack.
+```
+
 #### AI prompt (testing migration)
 ```
 We have Jest unit tests using @vue/test-utils v1 and Vue 2 snapshots. 
 Provide a migration plan to update the tests for Vue 3 compatibility, including snapshot considerations.
+---
+Testing stack:
+- Unit runner: {{ unit_runner }}
+- Current component utils: {{ current_test_utils_version }}
+- Snapshot usage: {{ snapshot_summary }}
+
+Outline steps to upgrade tests for Vue 3, note which snapshots must be regenerated, and list regression areas to cover.
 ```
 
 ---
@@ -640,6 +824,13 @@ npx source-map-explorer dist/assets/*.js
 ```
 Review this checklist of cleanup tasks (paste). 
 What additional items should we verify before declaring the Vue 3 migration complete?
+---
+Cleanup checklist:
+{{ cleanup_checklist }}
+Outstanding concerns:
+{{ outstanding_concerns }}
+
+Identify remaining tasks, metrics to validate, and documentation updates before we call the migration done.
 ```
 
 ---
