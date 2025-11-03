@@ -10,6 +10,9 @@
 export default {
   name: 'spinner',
   props: ['show'],
+  compatConfig: {
+    MODE: 3
+  },
   serverCacheKey: props => props.show
 }
 </script>
@@ -24,9 +27,9 @@ $duration = 1.4s
   animation-play-state paused
   &.show
     animation-play-state running
-  &.v-enter, &.v-leave-active
+  &.v-enter-from, &.v-leave-to
     opacity 0
-  &.v-enter-active, &.v-leave
+  &.v-enter-to, &.v-leave-from
     opacity 1
 
 @keyframes rotator
