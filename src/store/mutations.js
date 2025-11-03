@@ -1,5 +1,3 @@
-import Vue from 'vue'
-
 export default {
   SET_ACTIVE_TYPE: (state, { type }) => {
     state.activeType = type
@@ -12,12 +10,22 @@ export default {
   SET_ITEMS: (state, { items }) => {
     items.forEach(item => {
       if (item) {
-        Vue.set(state.items, item.id, item)
+        state.items[item.id] = item
       }
     })
   },
 
   SET_USER: (state, { id, user }) => {
-    Vue.set(state.users, id, user || false) /* false means user not found */
+    state.users[id] = user || false /* false means user not found */
+  },
+
+  SET_ROUTE: (state, route) => {
+    state.route = {
+      path: route.path,
+      fullPath: route.fullPath,
+      params: { ...route.params },
+      query: { ...route.query },
+      name: route.name ?? null
+    }
   }
 }
