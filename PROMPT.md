@@ -5,7 +5,7 @@
     In package.json, update vue to 3.1, install @vue/compat of the same version, and replace vue-template-compiler (if present) with @vue/compiler-sfc
     In the build setup, alias vue to @vue/compat and enable compat mode via Vue compiler options.
     
-03)
+03) step-03/fix-initial-compat-warnings
     At this point, your application may encounter some compile-time errors / warnings
     Fix them first. If all compiler warnings are gone, you can also set the compiler to Vue 3 mode.
     ```error
@@ -31,7 +31,7 @@
         File: C:/Users/nugra/workspace/project/vue-2-to-3/vue-hackernews-2.0/src/components/Item.vue
     ```
 
-04)
+04) step-04/fix-runtime-compat-warnings
     After fixing the errors, the app should be able to run if it is not subject to the limitations mentioned above.
     You will likely see a LOT of warnings from both the command line and the browser console. Here are some general tips:
         - You can filter for specific warnings in the browser console. It's a good idea to use the filter and focus on fixing one item at a time. You can also use negated filters like -GLOBAL_MOUNT.
@@ -39,22 +39,22 @@
         - Some warnings may be caused by a dependency that you use (e.g. vue-router). You can check this from the warning's component trace or stack trace (expanded on click). Focus on fixing the warnings that originate from your own source code first.
         - If you are using vue-router, note <transition> and <keep-alive> will not work with <router-view> until you upgrade to vue-router v4.
 
-05)
+05) step-05/update-transition-class-names
     Update <transition> class names. This is the only feature that does not have a runtime warning. You can do a project-wide search for .*-enter and .*-leave CSS class names.
 
-06)
+06) step-06/update-app-entry
     Update app entry to use new global mounting API.
 
-07)
+07) step-07/upgrade-vuex
     Upgrade vuex to v4.
 
-08)
+08) step-08/upgrade-vue-router
     Upgrade vue-router to v4. If you also use vuex-router-sync, you can replace it with a store getter.
     After the upgrade, to use <transition> and <keep-alive> with <router-view> requires using the new scoped-slot based syntax.
 
-09)
+09) step-09/fix-individual-warnings
     Pick off individual warnings. Note some features have conflicting behavior between Vue 2 and Vue 3 - for example, the render function API, or the functional component vs. async component change.
     To migrate to Vue 3 API without affecting the rest of the application, you can opt-in to Vue 3 behavior on a per-component basis with the compatConfig option.
 
-10)
+10) step-10/remove-migration-build
     When all warnings are fixed, you can remove the migration build and switch to Vue 3 proper. Note you may not be able to do so if you still have dependencies that rely on Vue 2 behavior.
