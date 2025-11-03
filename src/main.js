@@ -1,6 +1,9 @@
-import { createApp as createVueApp, configureCompat } from 'vue'
+import { createApp, configureCompat } from 'vue'
 import 'es6-promise/auto'
-import { createApp } from './app'
+import App from './App.vue'
+import { createStore } from './store'
+import { createRouter } from './router'
+import titleMixin from './util/title'
 import ProgressBar from './components/ProgressBar.vue'
 
 if (typeof configureCompat === 'function') {
@@ -13,10 +16,16 @@ if (typeof configureCompat === 'function') {
   })
 }
 
-const { app, router, store } = createApp()
+const store = createStore()
+const router = createRouter()
+const app = createApp(App)
+
+app.use(store)
+app.use(router)
+app.mixin(titleMixin)
 
 // global progress bar
-const progressApp = createVueApp(ProgressBar)
+const progressApp = createApp(ProgressBar)
 const progressBar = progressApp.mount(document.createElement('div'))
 document.body.appendChild(progressBar.$el)
 app.config.globalProperties.$bar = progressBar
