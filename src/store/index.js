@@ -1,13 +1,12 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore as createVuexStore } from 'vuex'
 import actions from './actions'
 import mutations from './mutations'
 import getters from './getters'
 
-Vue.use(Vuex)
+const isDev = import.meta.env.DEV
 
 export function createStore () {
-  return new Vuex.Store({
+  return createVuexStore({
     state: {
       activeType: null,
       itemsPerPage: 20,
@@ -19,10 +18,18 @@ export function createStore () {
         show: [],
         ask: [],
         job: []
+      },
+      route: {
+        path: '/',
+        fullPath: '/',
+        params: {},
+        query: {},
+        name: null
       }
     },
     actions,
     mutations,
-    getters
+    getters,
+    strict: isDev
   })
 }
