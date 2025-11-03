@@ -33,10 +33,6 @@ export default {
     type: String
   },
 
-  compatConfig: {
-    MODE: 3
-  },
-
   data () {
     return {
       transition: 'slide-right',

@@ -32,9 +32,6 @@ import { host, timeAgo } from '../util/filters'
 export default {
   name: 'news-item',
   props: ['item'],
-  compatConfig: {
-    MODE: 3
-  },
   // http://ssr.vuejs.org/en/caching.html#component-level-caching
   serverCacheKey: ({ item: { id, __lastUpdated, time }}) => {
     return `${id}::${__lastUpdated}::${timeAgo(time)}`

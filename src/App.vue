@@ -15,21 +15,13 @@
         </a>
       </nav>
     </header>
-<router-view v-slot="{ Component }">
-  <transition name="fade" mode="out-in">
-    <component :is="Component" class="view" />
-  </transition>
-</router-view>
-</div>
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" class="view" />
+      </transition>
+    </router-view>
+  </div>
 </template>
-
-<script>
-export default {
-  compatConfig: {
-    MODE: 3
-  }
-}
-</script>
 
 <style lang="stylus">
 body

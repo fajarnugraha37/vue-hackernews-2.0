@@ -1,20 +1,10 @@
-import { createApp, configureCompat } from 'vue'
+import { createApp } from 'vue'
 import 'es6-promise/auto'
 import App from './App.vue'
 import { createStore } from './store'
 import { createRouter } from './router'
 import titleMixin from './util/title'
 import ProgressBar from './components/ProgressBar.vue'
-
-if (typeof configureCompat === 'function') {
-  configureCompat({
-    MODE: 3,
-    GLOBAL_MOUNT: false,
-    GLOBAL_PROTOTYPE: false,
-    GLOBAL_SET: false,
-    GLOBAL_DELETE: false
-  })
-}
 
 const store = createStore()
 const router = createRouter()
@@ -25,9 +15,10 @@ app.use(router)
 app.mixin(titleMixin)
 
 // global progress bar
+const progressContainer = document.createElement('div')
+document.body.appendChild(progressContainer)
 const progressApp = createApp(ProgressBar)
-const progressBar = progressApp.mount(document.createElement('div'))
-document.body.appendChild(progressBar.$el)
+const progressBar = progressApp.mount(progressContainer)
 app.config.globalProperties.$bar = progressBar
 
 // call `asyncData` when a route component's params change

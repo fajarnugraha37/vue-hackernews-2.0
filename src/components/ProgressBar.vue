@@ -22,9 +22,6 @@ export default {
       failedColor: '#ff0000',
     }
   },
-  compatConfig: {
-    MODE: 3
-  },
   methods: {
     start () {
       this.show = true

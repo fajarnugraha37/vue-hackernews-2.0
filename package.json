@@ -15,7 +15,6 @@
   "dependencies": {
     "es6-promise": "^4.2.8",
     "firebase": "^4.6.2",
-    "@vue/compat": "^3.4.0",
     "vue": "^3.4.0",
     "vue-router": "^4.3.0",
     "vuex": "^4.1.0"
