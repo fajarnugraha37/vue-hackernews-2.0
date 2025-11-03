@@ -1,7 +1,11 @@
-import Vue from 'vue'
+import Vue, { configureCompat } from 'vue'
 import 'es6-promise/auto'
 import { createApp } from './app'
 import ProgressBar from './components/ProgressBar.vue'
+
+if (typeof configureCompat === 'function') {
+  configureCompat({ MODE: 2 })
+}
 
 // global progress bar
 const bar = Vue.prototype.$bar = new Vue(ProgressBar).$mount()

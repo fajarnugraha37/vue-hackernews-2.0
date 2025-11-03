@@ -15,7 +15,8 @@
   "dependencies": {
     "es6-promise": "^4.2.8",
     "firebase": "^4.6.2",
-    "vue": "^2.7.16",
+    "@vue/compat": "^3.1.0",
+    "vue": "^3.1.0",
     "vue-router": "^3.6.5",
     "vuex": "^3.6.2",
     "vuex-router-sync": "^5.0.0"
@@ -23,9 +24,9 @@
   "devDependencies": {
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-preset-env": "^1.7.0",
+    "@vitejs/plugin-vue": "^4.5.0",
+    "@vue/compiler-sfc": "^3.1.0",
     "stylus": "^0.54.5",
-    "vite": "^4.5.0",
-    "vite-plugin-vue2": "^2.0.3",
-    "vue-template-compiler": "^2.7.16"
+    "vite": "^4.5.0"
   }
 }
