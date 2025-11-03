@@ -24,6 +24,9 @@ import { timeAgo } from '../util/filters'
 export default {
   name: 'comment',
   props: ['id'],
+  compatConfig: {
+    MODE: 3
+  },
   data () {
     return {
       open: true

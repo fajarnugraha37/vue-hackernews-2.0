@@ -9,6 +9,9 @@ const camelize = str => str.charAt(0).toUpperCase() + str.slice(1)
 export default function createListView (type) {
   return defineComponent({
     name: `${type}-stories-view`,
+    compatConfig: {
+      MODE: 3
+    },
 
     asyncData ({ store }) {
       return store.dispatch('FETCH_LIST_DATA', { type })

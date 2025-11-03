@@ -24,6 +24,10 @@ import { timeAgo } from '../util/filters'
 export default {
   name: 'user-view',
 
+  compatConfig: {
+    MODE: 3
+  },
+
   computed: {
     user () {
       return this.$store.state.users[this.$route.params.id]

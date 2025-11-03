@@ -36,6 +36,10 @@ export default {
   name: 'item-view',
   components: { Spinner, Comment },
 
+  compatConfig: {
+    MODE: 3
+  },
+
   data: () => ({
     loading: true
   }),

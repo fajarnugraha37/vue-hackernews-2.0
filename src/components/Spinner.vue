@@ -10,6 +10,9 @@
 export default {
   name: 'spinner',
   props: ['show'],
+  compatConfig: {
+    MODE: 3
+  },
   serverCacheKey: props => props.show
 }
 </script>
