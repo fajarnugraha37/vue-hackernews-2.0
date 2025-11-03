@@ -17,5 +17,15 @@ export default {
 
   SET_USER: (state, { id, user }) => {
     state.users[id] = user || false /* false means user not found */
+  },
+
+  SET_ROUTE: (state, route) => {
+    state.route = {
+      path: route.path,
+      fullPath: route.fullPath,
+      params: { ...route.params },
+      query: { ...route.query },
+      name: route.name ?? null
+    }
   }
 }

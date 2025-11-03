@@ -2,7 +2,7 @@
   <div id="app">
     <header class="header">
       <nav class="inner">
-        <router-link to="/" exact>
+        <router-link to="/">
           <img class="logo" src="/logo-48.png" alt="logo">
         </router-link>
         <router-link to="/top">Top</router-link>
@@ -15,9 +15,11 @@
         </a>
       </nav>
     </header>
-    <transition name="fade" mode="out-in">
-      <router-view class="view"></router-view>
-    </transition>
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" class="view" />
+      </transition>
+    </router-view>
   </div>
 </template>
 

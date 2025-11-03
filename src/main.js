@@ -1,18 +1,28 @@
-import Vue, { configureCompat } from 'vue'
+import { createApp as createVueApp, configureCompat } from 'vue'
 import 'es6-promise/auto'
 import { createApp } from './app'
 import ProgressBar from './components/ProgressBar.vue'
 
 if (typeof configureCompat === 'function') {
-  configureCompat({ MODE: 2 })
+  configureCompat({
+    MODE: 3,
+    GLOBAL_MOUNT: false,
+    GLOBAL_PROTOTYPE: false,
+    GLOBAL_SET: false,
+    GLOBAL_DELETE: false
+  })
 }
 
+const { app, router, store } = createApp()
+
 // global progress bar
-const bar = Vue.prototype.$bar = new Vue(ProgressBar).$mount()
-document.body.appendChild(bar.$el)
+const progressApp = createVueApp(ProgressBar)
+const progressBar = progressApp.mount(document.createElement('div'))
+document.body.appendChild(progressBar.$el)
+app.config.globalProperties.$bar = progressBar
 
 // call `asyncData` when a route component's params change
-Vue.mixin({
+app.mixin({
   beforeRouteUpdate (to, from, next) {
     const { asyncData } = this.$options
     if (asyncData) {
@@ -26,45 +36,64 @@ Vue.mixin({
   }
 })
 
-const { app, router, store } = createApp()
+function getComponents (route) {
+  return route.matched.flatMap(record => Object.values(record.components || {}))
+}
 
-router.onReady(async () => {
-  router.beforeResolve((to, from, next) => {
-    const matched = router.getMatchedComponents(to)
-    const prevMatched = router.getMatchedComponents(from)
-    let diffed = false
-    const activated = matched.filter((c, i) => diffed || (diffed = (prevMatched[i] !== c)))
-    const asyncDataHooks = activated.map(c => c.asyncData).filter(Boolean)
-    if (!asyncDataHooks.length) {
-      return next()
-    }
-
-    bar.start()
-    Promise.all(asyncDataHooks.map(hook => hook({ store, route: to })))
-      .then(() => {
-        bar.finish()
-        next()
-      })
-      .catch(err => {
-        bar.fail()
-        next(err)
-      })
+router.beforeEach((to, from, next) => {
+  store.commit('SET_ROUTE', {
+    path: to.path,
+    fullPath: to.fullPath,
+    params: to.params,
+    query: to.query,
+    name: to.name ?? null
   })
+  next()
+})
 
-  const initialMatched = router.getMatchedComponents()
-  const initialHooks = initialMatched.map(c => c.asyncData).filter(Boolean)
+router.beforeResolve(async (to, from, next) => {
+  const matched = getComponents(to)
+  const prevMatched = getComponents(from)
+  let diffed = false
+  const activated = matched.filter((c, i) => diffed || (diffed = (prevMatched[i] !== c)))
+  const asyncDataHooks = activated
+    .map(component => component && component.asyncData)
+    .filter(Boolean)
+
+  if (!asyncDataHooks.length) {
+    return next()
+  }
+
+  progressBar.start()
+  try {
+    await Promise.all(asyncDataHooks.map(hook => hook({ store, route: to })))
+    progressBar.finish()
+    next()
+  } catch (err) {
+    progressBar.fail()
+    next(err)
+  }
+})
+
+router.isReady().then(async () => {
+  const initialComponents = getComponents(router.currentRoute.value)
+  const initialHooks = initialComponents
+    .map(component => component && component.asyncData)
+    .filter(Boolean)
+
   if (initialHooks.length) {
-    bar.start()
+    progressBar.start()
     try {
       await Promise.all(
-        initialHooks.map(hook => hook({ store, route: router.currentRoute }))
+        initialHooks.map(hook => hook({ store, route: router.currentRoute.value }))
       )
-      bar.finish()
+      progressBar.finish()
     } catch (err) {
-      bar.fail()
+      progressBar.fail()
       console.error(err)
     }
   }
 
-  app.$mount('#app')
+  store.commit('SET_ROUTE', router.currentRoute.value)
+  app.mount('#app')
 })

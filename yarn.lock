@@ -129,12 +129,12 @@
   resolved "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.18.20.tgz"
   integrity sha512-kTdfRcSiDfQca/y9QIkng02avJ+NCaQvrMejlsB3RRv5sE9rRoeBPISaZpKxHELzRxZyLvNts1P27W3wV+8geQ==
 
-"@firebase/app-types@0.1.2":
+"@firebase/app-types@^0.1.0", "@firebase/app-types@0.1.2":
   version "0.1.2"
   resolved "https://registry.npmjs.org/@firebase/app-types/-/app-types-0.1.2.tgz"
   integrity sha512-bCIZGeMtP0ibrXNNaU214/1tRNw0jHnir/cfiAao1gjUyIS7RzOTQoH+zbwPJNEwUqJ0T3ykw/Tv4/khGqbVBg==
 
-"@firebase/app@^0.1.2":
+"@firebase/app@^0.1.0", "@firebase/app@^0.1.2":
   version "0.1.10"
   resolved "https://registry.npmjs.org/@firebase/app/-/app-0.1.10.tgz"
   integrity sha512-2GTXt3b2QZXkmx6/5nNJq+pEN/VTjAG55MFJS1WMoLVZkwKuNpWNk65QVyPaoL88x1iHtuLqAMFgJUOnhOg+Pw==
@@ -231,7 +231,7 @@
   resolved "https://registry.npmjs.org/@vitejs/plugin-vue/-/plugin-vue-4.6.2.tgz"
   integrity sha512-kqf7SGFoG+80aZG6Pf+gsZIVvGSCKE98JbiWqcCV9cThtg91Jav0yvYFC9Zb+jKetNGF6ZKeoaxgZfND21fWKw==
 
-"@vue/compat@^3.1.0":
+"@vue/compat@^3.4.0":
   version "3.5.22"
   resolved "https://registry.npmjs.org/@vue/compat/-/compat-3.5.22.tgz"
   integrity sha512-uPRDr773Wvvq6axEE7qI/PiqNyka9jIweppH9qylPoPbrI4SKQMoAXL45Rtw6sIBznsqNw7LT2u8J+msXQprcA==
@@ -259,7 +259,7 @@
     "@vue/compiler-core" "3.5.22"
     "@vue/shared" "3.5.22"
 
-"@vue/compiler-sfc@^3.1.0", "@vue/compiler-sfc@3.5.22":
+"@vue/compiler-sfc@^3.4.0", "@vue/compiler-sfc@3.5.22":
   version "3.5.22"
   resolved "https://registry.npmjs.org/@vue/compiler-sfc/-/compiler-sfc-3.5.22.tgz"
   integrity sha512-tbTR1zKGce4Lj+JLzFXDq36K4vcSZbJ1RBu8FxcDv1IGRz//Dh2EBqksyGVypz3kXpshIfWKGOCcqpSbyGWRJQ==
@@ -281,6 +281,11 @@
   dependencies:
     "@vue/compiler-dom" "3.5.22"
     "@vue/shared" "3.5.22"
+
+"@vue/devtools-api@^6.0.0-beta.11", "@vue/devtools-api@^6.6.4":
+  version "6.6.4"
+  resolved "https://registry.npmjs.org/@vue/devtools-api/-/devtools-api-6.6.4.tgz"
+  integrity sha512-sGhTPMuXqZ1rVOk32RylztWkfXTRhuS7vgAKv0zjqk8gbsHkJ7xfFf+jbySxt7tWObEJwyKaHMikV/WGDiQm8g==
 
 "@vue/reactivity@3.5.22":
   version "3.5.22"
@@ -1210,7 +1215,7 @@ strip-ansi@^3.0.0:
   dependencies:
     ansi-regex "^2.0.0"
 
-stylus@^0.54.5:
+stylus@*, stylus@^0.54.5:
   version "0.54.8"
   resolved "https://registry.npmjs.org/stylus/-/stylus-0.54.8.tgz"
   integrity sha512-vr54Or4BZ7pJafo2mpf0ZcwA74rpuYCZbxrHBsH8kbcXOwSfvBFwsRfpGO5OD5fhG5HDCFW737PKaawI7OqEAg==
@@ -1244,7 +1249,7 @@ urix@^0.1.0:
   resolved "https://registry.npmjs.org/urix/-/urix-0.1.0.tgz"
   integrity sha512-Am1ousAhSLBeB9cG/7k7r2R0zj50uDRlZHPGbazid5s9rlF1F/QKYObEKSIunSjIOkJZqwRRLpvewjEkM7pSqg==
 
-vite@^4.5.0:
+"vite@^4.0.0 || ^5.0.0", vite@^4.5.0:
   version "4.5.14"
   resolved "https://registry.npmjs.org/vite/-/vite-4.5.14.tgz"
   integrity sha512-+v57oAaoYNnO3hIu5Z/tJRZjq5aHM2zDve9YZ8HngVHbhk66RStobhb1sqPMIPEleV6cNKYK4eGrAbE9Ulbl2g==
@@ -1255,10 +1260,14 @@ vite@^4.5.0:
   optionalDependencies:
     fsevents "~2.3.2"
 
-vue-router@^3.6.5:
-  version "3.6.5"
+vue-router@^4.3.0:
+  version "4.6.3"
+  resolved "https://registry.npmjs.org/vue-router/-/vue-router-4.6.3.tgz"
+  integrity sha512-ARBedLm9YlbvQomnmq91Os7ck6efydTSpRP3nuOKCvgJOHNrhRoJDSKtee8kcL1Vf7nz6U+PMBL+hTvR3bTVQg==
+  dependencies:
+    "@vue/devtools-api" "^6.6.4"
 
-vue@^3.1.0:
+vue@^3.2.0, vue@^3.2.25, vue@^3.4.0, vue@^3.5.0, vue@3.5.22:
   version "3.5.22"
   resolved "https://registry.npmjs.org/vue/-/vue-3.5.22.tgz"
   integrity sha512-toaZjQ3a/G/mYaLSbV+QsQhIdMo9x5rrqIpYRObsJ6T/J+RyCSFwN2LHNVH9v8uIcljDNa3QzPVdv3Y6b9hAJQ==
@@ -1269,13 +1278,12 @@ vue@^3.1.0:
     "@vue/server-renderer" "3.5.22"
     "@vue/shared" "3.5.22"
 
-vuex-router-sync@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.npmjs.org/vuex-router-sync/-/vuex-router-sync-5.0.0.tgz"
-  integrity sha512-Mry2sO4kiAG64714X1CFpTA/shUH1DmkZ26DFDtwoM/yyx6OtMrc+MxrU+7vvbNLO9LSpgwkiJ8W+rlmRtsM+w==
-
-vuex@^3.6.2:
-  version "3.6.2"
+vuex@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.npmjs.org/vuex/-/vuex-4.1.0.tgz"
+  integrity sha512-hmV6UerDrPcgbSy9ORAtNXDr9M4wlNP4pEFKye4ujJF8oqgFFuxDCdOLS3eNoRTtq5O3hoBDh9Doj1bQMYHRbQ==
+  dependencies:
+    "@vue/devtools-api" "^6.0.0-beta.11"
 
 websocket-driver@>=0.5.1:
   version "0.7.0"

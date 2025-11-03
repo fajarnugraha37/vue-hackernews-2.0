@@ -37,7 +37,8 @@ export default {
     return {
       transition: 'slide-right',
       displayedPage: Number(this.$route.params.page) || 1,
-      displayedItems: this.$store.getters.activeItems
+      displayedItems: this.$store.getters.activeItems,
+      unwatchList: null
     }
   },
 
@@ -54,10 +55,8 @@ export default {
     }
   },
 
-  beforeMount () {
-    if (this.$root._isMounted) {
-      this.loadItems(this.page)
-    }
+  mounted () {
+    this.loadItems(this.page)
     // watch the current list for realtime updates
     this.unwatchList = watchList(this.type, ids => {
       this.$store.commit('SET_LIST', { type: this.type, ids })
@@ -67,8 +66,10 @@ export default {
     })
   },
 
-  beforeDestroy () {
-    this.unwatchList()
+  beforeUnmount () {
+    if (this.unwatchList) {
+      this.unwatchList()
+    }
   },
 
   watch: {
