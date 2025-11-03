@@ -37,7 +37,8 @@ export default {
     return {
       transition: 'slide-right',
       displayedPage: Number(this.$route.params.page) || 1,
-      displayedItems: this.$store.getters.activeItems
+      displayedItems: this.$store.getters.activeItems,
+      unwatchList: null
     }
   },
 
@@ -54,10 +55,8 @@ export default {
     }
   },
 
-  beforeMount () {
-    if (this.$root._isMounted) {
-      this.loadItems(this.page)
-    }
+  mounted () {
+    this.loadItems(this.page)
     // watch the current list for realtime updates
     this.unwatchList = watchList(this.type, ids => {
       this.$store.commit('SET_LIST', { type: this.type, ids })
@@ -67,8 +66,10 @@ export default {
     })
   },
 
-  beforeDestroy () {
-    this.unwatchList()
+  beforeUnmount () {
+    if (this.unwatchList) {
+      this.unwatchList()
+    }
   },
 
   watch: {
@@ -131,18 +132,18 @@ export default {
     padding 0
     margin 0
 
-.slide-left-enter, .slide-right-leave-to
+.slide-left-enter-from, .slide-right-leave-to
   opacity 0
   transform translate(30px, 0)
 
-.slide-left-leave-to, .slide-right-enter
+.slide-left-leave-to, .slide-right-enter-from
   opacity 0
   transform translate(-30px, 0)
 
 .item-move, .item-enter-active, .item-leave-active
   transition all .5s cubic-bezier(.55,0,.1,1)
 
-.item-enter
+.item-enter-from
   opacity 0
   transform translate(30px, 0)
 
