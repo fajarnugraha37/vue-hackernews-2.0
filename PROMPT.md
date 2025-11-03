@@ -1,0 +1,1 @@
+01) migrate to Vite + vite-plugin-vue2: remove SSR and switch build setup to Vite
