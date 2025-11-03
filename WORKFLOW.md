@@ -7,6 +7,10 @@ _A step-by-step playbook with AI collaboration prompts_
 
 Migrating a mature Vue 2 codebase demands more than bumping versions. This workflow breaks the journey into clear stages, highlights the reasoning behind each activity, and integrates suggested AI prompts so teammates can leverage Codex/ChatGPT productively. Treat it as a living document—augment it with project-specific lessons.
 
+Tools:
+- https://github.com/vuejs/vue-codemod
+- https://github.com/vuejs/vue-migration-helper
+
 ---
 
 ## 2. Preparation & Audit
