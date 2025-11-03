@@ -86,7 +86,7 @@ a
 .fade-enter-active, .fade-leave-active
   transition all .2s ease
 
-.fade-enter, .fade-leave-active
+.fade-enter-from, .fade-leave-to
   opacity 0
 
 @media (max-width 860px)

@@ -1,4 +1,8 @@
-https://v3-migration.vuejs.org/migration-build.html#upgrade-workflow
+Reference:
+    - https://v3-migration.vuejs.org/migration-build.html#upgrade-workflow
+    - https://v3-migration.vuejs.org/migration-build.html#compat-configuration
+    - https://v3-migration.vuejs.org/migration-build.html#feature-reference
+    - https://v3-migration.vuejs.org/breaking-changes/
 
 01) step-01/migrate-to-vite
     migrate to Vite + vite-plugin-vue2: remove SSR and switch build setup to Vite
