@@ -415,6 +415,26 @@ module.exports = {
 - **SCSS/SASS/LESS:** configure Vite `css.preprocessorOptions` for shared variables/mixins. For MFEs, publish a design tokens package so Vue 2 and Vue 3 apps read identical variables.
 - **Microfrontend Runtime Considerations:** coordinate library upgrades per microfrontend—maintain compatibility wrappers so Vue 2 MFEs can coexist with Vue 3 MFEs using new dependencies. Apply feature flags for shared UI kit versions to prevent CSS drift.
 
+### 4.5 Extra Guidance & Examples
+- **Decision checklist**
+  - Create a migration spreadsheet capturing package name, current version, Vue 3 replacement, owner, risk level, and rollout window.
+  - Flag libraries with no Vue 3 roadmap as blockers and raise migration RFCs early.
+- **Backlog template**
+  ```markdown
+  | Package | Current | Target | Owner | Risk | Rollout Notes |
+  |---------|---------|--------|-------|------|----------------|
+  | buefy   | 0.9.x   | oruga  | @design | 🔴 | Replace nav + forms in sprint 1, tables in sprint 2 |
+  | vee-validate | 3.x | 4.x | @forms | 🟡 | Convert login + registration, then global forms |
+  ```
+- **Bridging legacy Vue 2 components**
+  - Web component wrapper: `customElements.define('legacy-widget', wrap(Vue, LegacyComponent))`.
+  - Microfrontend isolation: expose Vue 2 apps via Qiankun or Module Federation while new Vue 3 remotes roll out.
+  - Event bridge: publish updates with `window.dispatchEvent(new CustomEvent('legacy:update', { detail }))` so Vue 3 apps can react.
+- **Framework-agnostic libraries**
+  - Verify ESM output; Vite prefers native modules.
+  - Lazy-load DOM-heavy packages inside `onMounted` to avoid hydration warnings.
+  - Re-test SSR behaviour because Vue 3 hydration is stricter.
+
 ---
 
 ## 5. Microfrontend & Partial Migration Strategy
@@ -487,6 +507,34 @@ customElements.define('legacy-widget', CustomElement)
 </template>
 ```
 
+### 5.4 Advanced Microfrontend Playbook
+- **Create a migration scorecard** documenting each MFE’s stack, shared dependencies, release cadence, and owner.
+- **Coexistence patterns**
+  - Namespace CSS through shared design tokens or Tailwind presets published as `@company/design-system`.
+  - Expose Vue runtime, router, and store libraries as Module Federation singletons to avoid duplicate bundles.
+  - Build a simple event bridge:
+    ```ts
+    export function publish (channel, payload) {
+      window.dispatchEvent(new CustomEvent(channel, { detail: payload }))
+    }
+    export function subscribe (channel, handler) {
+      window.addEventListener(channel, handler)
+      return () => window.removeEventListener(channel, handler)
+    }
+    ```
+- **Migration roadmap**
+  1. **Audit** lifecycles, shared assets, and deployment pipelines.
+  2. **Dual-build** legacy MFEs (Qiankun bundle + remote module) to de-risk cutover.
+  3. **Upgrade shell** to Vite + Module Federation.
+  4. **Pilot** one remote, validating routing, store, and auth flows.
+  5. **Roll out** remaining MFEs with feature flags and dedicated regression passes.
+  6. **Retire Qiankun** once coverage goals are achieved.
+- **Partial migration tips**
+  - Maintain API contract versioning so Vue 2 and Vue 3 clients coexist.
+  - Provide a store façade while Vuex and Pinia overlap (`useCart()` delegating based on environment flag).
+  - Automate visual regression per MFE (Percy/Chromatic) to catch design drift.
+  - Document rollback steps for each remote deployment.
+
 ---
 
 ## 6. Dealing With Other Legacy Tooling
@@ -541,6 +589,18 @@ config.global.stubs = {
 }
 ```
 
+### 6.4 CI/CD & DevOps
+- Update pipeline scripts to call `vite build` instead of `vue-cli-service build` / custom Webpack commands.
+- Cache `node_modules`, `pnpm store`, or `yarn cache` to keep CI fast post-migration.
+- For Module Federation deployments, version remote URLs and bust caches after each release.
+- Add bundle size checks (e.g., `source-map-explorer`, `vite build --analyze`) to monitor regressions.
+
+### 6.5 Infrastructure Checklist
+- Remove obsolete Webpack/CLI configuration files from repositories.
+- Update container images/Dockerfiles to drop Webpack-specific dependencies.
+- Refresh Sentry/New Relic tracing instrumentation to match new router/store structures.
+- Document new local development commands (Vite dev server, Pinia devtools) in CONTRIBUTING.md.
+
 #### AI prompt (testing migration)
 ```
 We have Jest unit tests using @vue/test-utils v1 and Vue 2 snapshots. 
@@ -556,6 +616,25 @@ Provide a migration plan to update the tests for Vue 3 compatibility, including 
 3. Update documentation (README, onboarding guides, coding standards).
 4. Schedule knowledge-sharing sessions to align the team on Composition API, script setup, and new patterns.
 5. Monitor production logs closely after release; keep a rollback plan ready.
+6. Capture key metrics (Core Web Vitals, bundle size, backend latency) before and after launch.
+7. Archive migration scripts/codemods and update ADRs documenting major decisions.
+8. Populate a follow-up backlog (convert remaining mixins, adopt `<script setup>`, improve testing coverage).
+9. Celebrate with a postmortem summarising wins, surprises, and future improvements.
+
+**Sample cleanup script**
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Removing Vue 2 artifacts..."
+rm -rf src/legacy
+rm -f vue.config.js
+npm uninstall @vue/compat vue-template-compiler vue-loader
+
+echo "Running production build..."
+npm run build
+npx source-map-explorer dist/assets/*.js
+```
 
 #### AI prompt (post-migration review)
 ```
