@@ -6,12 +6,12 @@
           <h1>{{ item.title }}</h1>
         </a>
         <span v-if="item.url" class="host">
-          ({{ item.url | host }})
+          ({{ formatHost(item.url) }})
         </span>
         <p class="meta">
           {{ item.score }} points
           | by <router-link :to="'/user/' + item.by">{{ item.by }}</router-link>
-          {{ item.time | timeAgo }} ago
+          {{ formatTimeAgo(item.time) }} ago
         </p>
       </div>
       <div class="item-view-comments">
@@ -30,6 +30,7 @@
 <script>
 import Spinner from '../components/Spinner.vue'
 import Comment from '../components/Comment.vue'
+import { host, timeAgo } from '../util/filters'
 
 export default {
   name: 'item-view',
@@ -76,6 +77,12 @@ export default {
       fetchComments(this.$store, this.item).then(() => {
         this.loading = false
       })
+    },
+    formatHost (url) {
+      return host(url)
+    },
+    formatTimeAgo (timestamp) {
+      return timeAgo(timestamp)
     }
   }
 }
