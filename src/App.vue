@@ -2,8 +2,8 @@
   <div id="app">
     <header class="header">
       <nav class="inner">
-        <router-link to="/" exact>
-          <img class="logo" src="~public/logo-48.png" alt="logo">
+        <router-link to="/">
+          <img class="logo" src="/logo-48.png" alt="logo">
         </router-link>
         <router-link to="/top">Top</router-link>
         <router-link to="/new">New</router-link>
@@ -15,9 +15,11 @@
         </a>
       </nav>
     </header>
-    <transition name="fade" mode="out-in">
-      <router-view class="view"></router-view>
-    </transition>
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" class="view" />
+      </transition>
+    </router-view>
   </div>
 </template>
 
@@ -84,7 +86,7 @@ a
 .fade-enter-active, .fade-leave-active
   transition all .2s ease
 
-.fade-enter, .fade-leave-active
+.fade-enter-from, .fade-leave-to
   opacity 0
 
 @media (max-width 860px)

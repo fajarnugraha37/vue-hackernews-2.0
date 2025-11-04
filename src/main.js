@@ -1,0 +1,99 @@
+import { createApp } from 'vue'
+import 'es6-promise/auto'
+import App from './App.vue'
+import { createStore } from './store'
+import { createRouter } from './router'
+import titleMixin from './util/title'
+import ProgressBar from './components/ProgressBar.vue'
+
+const store = createStore()
+const router = createRouter()
+const app = createApp(App)
+
+app.use(store)
+app.use(router)
+app.mixin(titleMixin)
+
+// global progress bar
+const progressContainer = document.createElement('div')
+document.body.appendChild(progressContainer)
+const progressApp = createApp(ProgressBar)
+const progressBar = progressApp.mount(progressContainer)
+app.config.globalProperties.$bar = progressBar
+
+// call `asyncData` when a route component's params change
+app.mixin({
+  beforeRouteUpdate (to, from, next) {
+    const { asyncData } = this.$options
+    if (asyncData) {
+      asyncData({
+        store: this.$store,
+        route: to
+      }).then(next).catch(next)
+    } else {
+      next()
+    }
+  }
+})
+
+function getComponents (route) {
+  return route.matched.flatMap(record => Object.values(record.components || {}))
+}
+
+router.beforeEach((to, from, next) => {
+  store.commit('SET_ROUTE', {
+    path: to.path,
+    fullPath: to.fullPath,
+    params: to.params,
+    query: to.query,
+    name: to.name ?? null
+  })
+  next()
+})
+
+router.beforeResolve(async (to, from, next) => {
+  const matched = getComponents(to)
+  const prevMatched = getComponents(from)
+  let diffed = false
+  const activated = matched.filter((c, i) => diffed || (diffed = (prevMatched[i] !== c)))
+  const asyncDataHooks = activated
+    .map(component => component && component.asyncData)
+    .filter(Boolean)
+
+  if (!asyncDataHooks.length) {
+    return next()
+  }
+
+  progressBar.start()
+  try {
+    await Promise.all(asyncDataHooks.map(hook => hook({ store, route: to })))
+    progressBar.finish()
+    next()
+  } catch (err) {
+    progressBar.fail()
+    next(err)
+  }
+})
+
+router.isReady().then(async () => {
+  const initialComponents = getComponents(router.currentRoute.value)
+  const initialHooks = initialComponents
+    .map(component => component && component.asyncData)
+    .filter(Boolean)
+
+  if (initialHooks.length) {
+    progressBar.start()
+    try {
+      await Promise.all(
+        initialHooks.map(hook => hook({ store, route: router.currentRoute.value }))
+      )
+      progressBar.finish()
+    } catch (err) {
+      progressBar.fail()
+      console.error(err)
+    }
+  }
+
+  store.commit('SET_ROUTE', router.currentRoute.value)
+  app.mount('#app')
+})

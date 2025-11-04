@@ -2,7 +2,7 @@
   <li v-if="comment" class="comment">
     <div class="by">
       <router-link :to="'/user/' + comment.by">{{ comment.by }}</router-link>
-      {{ comment.time | timeAgo }} ago
+      {{ formatTimeAgo(comment.time) }} ago
     </div>
     <div class="text" v-html="comment.text"></div>
     <div class="toggle" :class="{ open }" v-if="comment.kids && comment.kids.length">
@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import { timeAgo } from '../util/filters'
+
 export default {
   name: 'comment',
   props: ['id'],
@@ -33,7 +35,10 @@ export default {
     }
   },
   methods: {
-    pluralize: n => n + (n === 1 ? ' reply' : ' replies')
+    pluralize: n => n + (n === 1 ? ' reply' : ' replies'),
+    formatTimeAgo (timestamp) {
+      return timeAgo(timestamp)
+    }
   }
 }
 </script>
